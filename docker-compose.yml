@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: skillswap
+      POSTGRES_PASSWORD: skillswap_pass
+      POSTGRES_DB: skillswap
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skillswap"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  identity-profile-service:
+    build: ./identity-profile-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://skillswap:skillswap_pass@postgres:5432/identity_profiles_db
+      SECRET_KEY: super-secret-key-change-in-production
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      REFRESH_TOKEN_EXPIRE_DAYS: 7
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+
+  session-service:
+    build: ./session-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://skillswap:skillswap_pass@postgres:5432/sessions_db
+      SECRET_KEY: super-secret-key-change-in-production
+      IDENTITY_SERVICE_URL: http://identity-profile-service:8000
+      NOTIFICATION_SERVICE_URL: http://notification-service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      identity-profile-service:
+        condition: service_started
+    ports:
+      - "8002:8000"
+
+  notification-service:
+    build: ./notification-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://skillswap:skillswap_pass@postgres:5432/notifications_db
+      SECRET_KEY: super-secret-key-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8003:8000"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - identity-profile-service
+      - session-service
+      - notification-service
+
+volumes:
+  postgres_data:
