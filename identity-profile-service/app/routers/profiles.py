@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.profile import Profile
 from app.schemas.profile import ProfileCreate, ProfileUpdate, ProfileResponse
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_role
 
 logger = logging.getLogger("identity_profile_service")
 
@@ -38,13 +38,20 @@ async def create_profile(
 
 
 @router.get("", response_model=list[ProfileResponse])
-async def list_profiles(db: AsyncSession = Depends(get_db)):
+async def list_profiles(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("admin", "member")),
+):
     result = await db.execute(select(Profile).where(Profile.is_active == True))  # noqa: E712
     return result.scalars().all()
 
 
 @router.get("/{profile_id}", response_model=ProfileResponse)
-async def get_profile(profile_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_profile(
+    profile_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("admin", "member")),
+):
     result = await db.execute(select(Profile).where(Profile.id == profile_id))
     profile = result.scalar_one_or_none()
     if not profile:

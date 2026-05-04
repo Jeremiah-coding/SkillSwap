@@ -13,6 +13,11 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+    totp_code: str | None = None
+
+
+class UserRoleUpdate(BaseModel):
+    role: str
 
 
 class TokenResponse(BaseModel):
