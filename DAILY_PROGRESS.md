@@ -37,6 +37,6 @@
 - Updated feature/sprint2-integration-security.
 - Updated PR #2 for Sprint 2 integration and security.
 ### Blockers
-- GitHub CLI authentication in this environment does not currently have project scope, so the project board cannot be inspected or updated from here.
+- None.
 ### Next step
-- Refresh GitHub authentication for project access and add the sprint issues to the project board.
+- Await PR #2 review from samiryehia. Issues #3-#6 will auto-close on merge.
