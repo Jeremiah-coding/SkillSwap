@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models.notification import Notification
 from app.schemas.notification import NotificationCreate, NotificationResponse
-from app.core.dependencies import get_current_user_token, TokenData
+from app.core.dependencies import get_current_user_token, TokenData, require_role
 
 logger = logging.getLogger("notification_service")
 
@@ -38,7 +38,7 @@ async def create_notification(
 @router.get("", response_model=list[NotificationResponse])
 async def list_notifications(
     db: AsyncSession = Depends(get_db),
-    token_data: TokenData = Depends(get_current_user_token),
+    token_data: TokenData = Depends(require_role("admin")),
 ):
     result = await db.execute(select(Notification))
     return result.scalars().all()
@@ -48,7 +48,7 @@ async def list_notifications(
 async def get_notifications_by_profile(
     profile_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    token_data: TokenData = Depends(get_current_user_token),
+    token_data: TokenData = Depends(require_role("admin", "member")),
 ):
     result = await db.execute(
         select(Notification).where(Notification.profile_id == profile_id)
