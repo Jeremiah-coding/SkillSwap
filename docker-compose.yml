@@ -23,6 +23,7 @@ services:
       SECRET_KEY: super-secret-key-change-in-production
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       REFRESH_TOKEN_EXPIRE_DAYS: 7
+      INTERNAL_SERVICE_SECRET: skillswap-internal-secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -36,6 +37,7 @@ services:
       SECRET_KEY: super-secret-key-change-in-production
       IDENTITY_SERVICE_URL: http://identity-profile-service:8000
       NOTIFICATION_SERVICE_URL: http://notification-service:8000
+      INTERNAL_SERVICE_SECRET: skillswap-internal-secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,3 +70,4 @@ services:
 
 volumes:
   postgres_data:
+

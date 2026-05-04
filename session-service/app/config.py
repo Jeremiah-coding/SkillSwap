@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     IDENTITY_SERVICE_URL: str = "http://identity-profile-service:8000"
     NOTIFICATION_SERVICE_URL: str = "http://notification-service:8000"
     HTTP_TIMEOUT: float = 5.0
+    INTERNAL_SERVICE_SECRET: str = "skillswap-internal-secret"
 
 
 settings = Settings()
