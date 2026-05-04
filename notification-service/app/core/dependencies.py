@@ -23,3 +23,12 @@ async def get_current_user_token(
         return TokenData(user_id=payload.get("sub"), role=payload.get("role", "member"))
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+
+def require_role(*roles: str):
+    async def _checker(token_data: TokenData = Depends(get_current_user_token)) -> TokenData:
+        if token_data.role not in roles:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        return token_data
+
+    return _checker

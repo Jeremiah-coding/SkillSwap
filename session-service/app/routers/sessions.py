@@ -9,7 +9,7 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models.session import Session
 from app.schemas.session import SessionCreate, SessionStatusUpdate, SessionResponse
-from app.core.dependencies import get_current_user_token, TokenData
+from app.core.dependencies import get_current_user_token, TokenData, require_role
 
 logger = logging.getLogger("session_service")
 
@@ -39,7 +39,7 @@ async def create_session(
 async def list_sessions(
     status_filter: Optional[str] = Query(None, alias="status"),
     db: AsyncSession = Depends(get_db),
-    token_data: TokenData = Depends(get_current_user_token),
+    token_data: TokenData = Depends(require_role("admin")),
 ):
     query = select(Session)
     if status_filter:
@@ -67,7 +67,7 @@ async def update_session_status(
     payload: SessionStatusUpdate,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    token_data: TokenData = Depends(get_current_user_token),
+    token_data: TokenData = Depends(require_role("admin")),
 ):
     request_id = getattr(request.state, "request_id", "unknown")
 
