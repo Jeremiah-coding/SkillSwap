@@ -10,6 +10,8 @@ jobs:
   identity-tests:
     name: Identity Service Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/test_db
     defaults:
       run:
         working-directory: identity-profile-service
@@ -33,6 +35,8 @@ jobs:
   session-tests:
     name: Session Service Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/test_db
     defaults:
       run:
         working-directory: session-service
@@ -56,6 +60,8 @@ jobs:
   notification-tests:
     name: Notification Service Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/test_db
     defaults:
       run:
         working-directory: notification-service
