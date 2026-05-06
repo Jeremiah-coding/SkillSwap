@@ -10,7 +10,7 @@ from app.middleware.request_id import RequestIDMiddleware
 # Ensure models are registered with Base before create_all
 from app.models import user, profile  # noqa: F401
 
-from app.routers import auth, profiles, mfa
+from app.routers import auth, profiles, mfa, internal
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -33,6 +33,7 @@ app.add_middleware(RequestIDMiddleware)
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(profiles.router, prefix="/api/v1/profiles", tags=["profiles"])
 app.include_router(mfa.router, prefix="/api/v1/mfa", tags=["mfa"])
+app.include_router(internal.router, prefix="/internal/profiles", tags=["internal"])
 
 
 @app.get("/health", tags=["health"])
