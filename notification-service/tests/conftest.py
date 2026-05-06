@@ -32,6 +32,6 @@ async def client(db_session: AsyncSession):
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_current_user_token] = override_get_current_user_token
-    async with AsyncClient(transport=ASGITransport(app=app, lifespan="off"), base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
     app.dependency_overrides.clear()
