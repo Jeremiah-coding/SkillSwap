@@ -5,8 +5,30 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from app.main import app
 from app.database import Base, get_db
 from app.core.dependencies import get_current_user_token, TokenData
+from app.routers import sessions
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+
+@pytest_asyncio.fixture(scope="function", autouse=True)
+async def mock_downstream_calls(monkeypatch):
+    async def _mock_validate_profile(profile_id: str, request_id: str):
+        return {"id": profile_id, "is_active": True}
+
+    async def _mock_create_notification(
+        profile_id: str,
+        message: str,
+        notification_type: str,
+        request_id: str,
+    ):
+        return {
+            "profile_id": profile_id,
+            "message": message,
+            "type": notification_type,
+        }
+
+    monkeypatch.setattr(sessions, "validate_profile", _mock_validate_profile)
+    monkeypatch.setattr(sessions, "create_notification", _mock_create_notification)
 
 
 @pytest_asyncio.fixture(scope="function")
